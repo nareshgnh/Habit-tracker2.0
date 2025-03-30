@@ -3,38 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Momentum Habits - Elegant Tracker</title>
-    {/* Updated Title */}
+    <title>Grid Habits - Monthly View</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
-      /* Loading Styles */
+      /* Minimal Loading */
       #loading-overlay {
         position: fixed;
         inset: 0;
-        background: #f8f9fa;
+        background: #fff;
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
         z-index: 10000;
-        font-size: 1.2em;
-        color: #6c757d;
-        transition: opacity 0.4s ease-out;
+        transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
       }
-      #loading-overlay .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #dee2e6;
-        border-top-color: var(--clr-primary, #0d6efd);
+      #loading-overlay::after {
+        content: "";
+        width: 32px;
+        height: 32px;
+        border: 3px solid #e5e7eb;
+        border-top-color: #4f46e5; /* Accent */
         border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 15px;
+        animation: spin 0.8s linear infinite;
       }
       @keyframes spin {
         to {
@@ -43,101 +39,145 @@
       }
       #loading-overlay.hidden {
         opacity: 0;
-        pointer-events: none;
+        visibility: hidden;
+      }
+      body.dark-mode #loading-overlay {
+        background: #111827;
+      } /* Dark loading bg */
+      body.dark-mode #loading-overlay::after {
+        border-color: #374151;
+        border-top-color: #818cf8;
       }
     </style>
   </head>
-  <body>
-    <div id="loading-overlay">
-      <div class="spinner"></div>
-      Loading Habits...
-    </div>
+  <body class="light-mode">
+    <!-- Start with light mode default -->
+    <div id="loading-overlay"></div>
 
-    <div class="app-container">
-      <!-- ===== SIDEBAR ===== -->
-      <aside class="sidebar">
-        <!-- Add Habit Button -->
-        <section class="card add-habit-trigger-card">
-          <button id="open-add-habit-modal-btn" class="button-primary">
-            <span>+</span> Add New Habit
-          </button>
-        </section>
-
-        <!-- Calendar -->
-        <section class="card">
-          <h2>Calendar</h2>
-          <div class="calendar-nav">
-            <button
-              id="cal-prev-month"
-              title="Previous Month"
-              class="button-icon"
+    <div class="grid-habit-app">
+      <!-- ===== HEADER ===== -->
+      <header class="app-header">
+        <div class="header-left">
+          <h1 class="app-title">Grid Habits</h1>
+          <button
+            id="dark-mode-toggle"
+            class="button button-icon-only"
+            title="Toggle Theme"
+          >
+            <svg
+              id="theme-icon-sun"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              width="20"
+              height="20"
             >
-              <
-            </button>
-            <span id="cal-month-year">Month Year</span>
-            <button id="cal-next-month" title="Next Month" class="button-icon">
-              >
-            </button>
-          </div>
-          <div class="calendar-grid-header">
-            <span>S</span><span>M</span><span>T</span><span>W</span
-            ><span>T</span><span>F</span><span>S</span>
-          </div>
-          <div id="cal-grid-body" class="calendar-grid-body">
-            <!-- Calendar day cells generated here -->
-          </div>
-        </section>
+              <path
+                fill-rule="evenodd"
+                d="M10 2a.75.75 0 01.75.75v.01a.75.75 0 01-1.5 0V2.75A.75.75 0 0110 2zM10 18a.75.75 0 01.75-.75v.01a.75.75 0 01-1.5 0v-.01A.75.75 0 0110 18zM5.697 4.93l.005.004a.75.75 0 011.06-1.063l-.004-.004a.75.75 0 01-1.06 1.063zm10.606 10.607l.005.004a.75.75 0 11-1.06-1.063l-.004-.004a.75.75 0 011.06 1.063zM18 10a.75.75 0 01-.75.75h-.01a.75.75 0 010-1.5h.01A.75.75 0 0118 10zM2 10a.75.75 0 01-.75.75h-.01a.75.75 0 010-1.5h.01A.75.75 0 012 10zm12.907-3.01l-.004-.004a.75.75 0 01-1.06-1.063l.004.004a.75.75 0 011.06 1.063zm-10.606 10.607l-.004-.004a.75.75 0 111.06-1.063l.004.004a.75.75 0 01-1.06 1.063zM10 7a3 3 0 100 6 3 3 0 000-6z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <svg
+              id="theme-icon-moon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              width="20"
+              height="20"
+              class="hidden"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.455 2.164a.75.75 0 01.687.063l.25.149a.75.75 0 01.248.967l-.108.33a.75.75 0 01-.928.498l-.568-.17a.75.75 0 01-.063-.687l.108-.33a.75.75 0 01.365-.248zm-2.629 6.84a.75.75 0 01.577-.373l.38.043a.75.75 0 01.677.86l-.117.41a.75.75 0 01-.97.55l-.38-.043a.75.75 0 01-.54-.677l.117-.41a.75.75 0 01.372-.576zm11.557 2.976a.75.75 0 01-.063.687l-.108.33a.75.75 0 01-.498.928l-.568.17a.75.75 0 01-.687-.063l-.25-.149a.75.75 0 01-.248-.967l.108-.33a.75.75 0 01.928-.498l.568.17a.75.75 0 01.063.687zM10 17a.75.75 0 01.75-.75 5.25 5.25 0 00-8.999-5.087A.75.75 0 01.938 10.5a7.25 7.25 0 1113.125 0 .75.75 0 01-1.187.763A5.25 5.25 0 0010.75 17 .75.75 0 0110 17z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="header-center month-navigator">
+          <button
+            id="prev-month-btn"
+            class="button button-icon-only"
+            title="Previous Month"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              width="20"
+              height="20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+          <h2 id="month-year-display">Month, Year</h2>
+          <button
+            id="next-month-btn"
+            class="button button-icon-only"
+            title="Next Month"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              width="20"
+              height="20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="header-right">
+          <button
+            id="manage-habits-btn"
+            class="button button-secondary"
+            title="Manage Habits"
+          >
+            Manage
+          </button>
+          <button id="done-managing-btn" class="button button-secondary hidden">
+            Done
+          </button>
+          <button
+            id="add-habit-btn"
+            class="button button-primary"
+            title="Add New Habit"
+          >
+            + Add Habit
+          </button>
+        </div>
+      </header>
 
-        <!-- Progress -->
-        <section class="card">
-          <h2>Progress: <span id="progress-for-date">Today</span></h2>
-          <p id="progress-stats">0 / 0 Completed</p>
-          <div class="progress-bar-container">
-            <div id="progress-bar-inner"></div>
-          </div>
-        </section>
-        <p
-          id="global-confirmation-message"
-          class="confirmation-message sidebar-confirmation"
-        ></p>
-      </aside>
-
-      <!-- ===== MAIN CONTENT ===== -->
+      <!-- ===== MAIN GRID AREA ===== -->
       <main class="main-content">
-        <header class="main-header">
-          <h1><span id="selected-date-header">Today</span>'s Habits</h1>
-          <div class="header-actions">
-            <button id="manage-habits-button" class="button-secondary">
-              Manage
-            </button>
-            <button id="done-managing-button" class="button-primary hidden">
-              Done
-            </button>
-          </div>
-        </header>
-
-        <!-- To Do List -->
-        <section class="habit-list-section">
-          <h3>To Do</h3>
-          <ul id="todo-habit-list" class="habit-list"></ul>
-          <p id="no-todo-msg" class="empty-list-msg hidden">
-            All done for this day!
-          </p>
-        </section>
-
-        <!-- Completed List -->
-        <section class="habit-list-section">
-          <h3>Completed</h3>
-          <ul id="completed-habit-list" class="habit-list"></ul>
-          <p id="no-completed-msg" class="empty-list-msg hidden">
-            No habits completed yet.
-          </p>
-        </section>
-
-        <p id="no-habits-msg" class="empty-list-msg hidden">
-          Click "+ Add New Habit" to get started!
+        <div id="habit-table-wrapper" class="habit-table-wrapper">
+          <table id="habit-table" class="habit-table">
+            <thead id="habit-table-head">
+              <!-- Header rows generated by JS -->
+            </thead>
+            <tbody id="habit-table-body">
+              <!-- Habit rows generated by JS -->
+            </tbody>
+          </table>
+        </div>
+        <p id="no-habits-msg" class="empty-table-msg hidden">
+          Add your first habit using the '+ Add Habit' button.
         </p>
       </main>
+
+      <!-- Global Confirmation Message Area -->
+      <div id="confirmation-area" class="confirmation-container">
+        <p id="global-confirmation-message" class="confirmation-message"></p>
+      </div>
     </div>
 
     <!-- ===== ADD HABIT MODAL ===== -->
@@ -145,38 +185,59 @@
       <div class="modal-overlay"></div>
       <div class="modal-content">
         <button class="modal-close-btn" title="Close">×</button>
-        <h2>Create a New Habit</h2>
+        <h2>Add New Habit</h2>
         <form id="add-habit-form">
           <div class="form-group">
-            <label for="modal-habit-name">Habit Name:</label>
+            <label for="modal-habit-name">Habit Name</label>
             <input
               type="text"
               id="modal-habit-name"
               required
-              placeholder="e.g., Meditate for 10 minutes"
+              placeholder="e.g., Meditate 10 mins"
             />
           </div>
           <div class="form-group form-group-inline">
             <div>
-              <label for="modal-start-date">Start Date:</label>
+              <label for="modal-start-date">Start Date</label>
               <input type="date" id="modal-start-date" required />
             </div>
             <div>
-              <label for="modal-duration">Duration (Days):</label>
+              <label for="modal-duration">Duration (Days)</label>
               <input
                 type="number"
                 id="modal-duration"
                 min="1"
-                value="30"
+                value="365"
                 required
               />
             </div>
           </div>
+          <div class="form-group">
+            <label for="modal-habit-goal">Monthly Goal (Days)</label>
+            <input
+              type="number"
+              id="modal-habit-goal"
+              min="1"
+              placeholder="e.g., 20"
+              required
+              value="30"
+            />
+            <!-- Added Goal Input -->
+            <small class="form-hint"
+              >How many days this month do you aim to complete this
+              habit?</small
+            >
+          </div>
           <div class="form-actions">
-            <button type="button" class="button-secondary modal-cancel-btn">
+            <button
+              type="button"
+              class="button button-secondary modal-cancel-btn"
+            >
               Cancel
             </button>
-            <button type="submit" class="button-primary">Save Habit</button>
+            <button type="submit" class="button button-primary">
+              Save Habit
+            </button>
           </div>
         </form>
       </div>
