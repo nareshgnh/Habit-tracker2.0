@@ -3,27 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Habit Tracker - Fresh Start</title>
+    <title>Momentum Habits - Elegant Tracker</title>
+    {/* Updated Title */}
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
     <style>
-      /* Basic Loading Styles */
+      /* Loading Styles */
       #loading-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(255, 255, 255, 0.85);
+        background: #f8f9fa;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         z-index: 10000;
-        font-size: 1.5em;
-        color: #444;
-        transition: opacity 0.3s ease-out;
+        font-size: 1.2em;
+        color: #6c757d;
+        transition: opacity 0.4s ease-out;
+      }
+      #loading-overlay .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #dee2e6;
+        border-top-color: var(--clr-primary, #0d6efd);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
       }
       #loading-overlay.hidden {
         opacity: 0;
@@ -32,36 +48,40 @@
     </style>
   </head>
   <body>
-    <div id="loading-overlay">Loading Tracker...</div>
+    <div id="loading-overlay">
+      <div class="spinner"></div>
+      Loading Habits...
+    </div>
 
     <div class="app-container">
       <!-- ===== SIDEBAR ===== -->
       <aside class="sidebar">
-        <!-- Add Habit -->
-        <section class="card">
-          <h2>Add Habit</h2>
-          <div class="input-group">
-            <input
-              type="text"
-              id="new-habit-name"
-              placeholder="e.g., Exercise"
-            />
-            <button id="add-habit-button">Add</button>
-          </div>
-          <p id="add-habit-confirm" class="confirmation-message"></p>
+        <!-- Add Habit Button -->
+        <section class="card add-habit-trigger-card">
+          <button id="open-add-habit-modal-btn" class="button-primary">
+            <span>+</span> Add New Habit
+          </button>
         </section>
 
         <!-- Calendar -->
         <section class="card">
           <h2>Calendar</h2>
           <div class="calendar-nav">
-            <button id="cal-prev-month" title="Previous Month"><</button>
+            <button
+              id="cal-prev-month"
+              title="Previous Month"
+              class="button-icon"
+            >
+              <
+            </button>
             <span id="cal-month-year">Month Year</span>
-            <button id="cal-next-month" title="Next Month">></button>
+            <button id="cal-next-month" title="Next Month" class="button-icon">
+              >
+            </button>
           </div>
           <div class="calendar-grid-header">
-            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span
-            ><span>Thu</span><span>Fri</span><span>Sat</span>
+            <span>S</span><span>M</span><span>T</span><span>W</span
+            ><span>T</span><span>F</span><span>S</span>
           </div>
           <div id="cal-grid-body" class="calendar-grid-body">
             <!-- Calendar day cells generated here -->
@@ -70,49 +90,98 @@
 
         <!-- Progress -->
         <section class="card">
-          <h2>Progress for <span id="progress-for-date">Today</span></h2>
+          <h2>Progress: <span id="progress-for-date">Today</span></h2>
           <p id="progress-stats">0 / 0 Completed</p>
           <div class="progress-bar-container">
             <div id="progress-bar-inner"></div>
           </div>
         </section>
+        <p
+          id="global-confirmation-message"
+          class="confirmation-message sidebar-confirmation"
+        ></p>
       </aside>
 
       <!-- ===== MAIN CONTENT ===== -->
       <main class="main-content">
         <header class="main-header">
-          <h1>Tasks for <span id="selected-date-header">Today</span></h1>
-          <button id="manage-habits-button">Manage</button>
-          <button id="done-managing-button" class="hidden">Done</button>
+          <h1><span id="selected-date-header">Today</span>'s Habits</h1>
+          <div class="header-actions">
+            <button id="manage-habits-button" class="button-secondary">
+              Manage
+            </button>
+            <button id="done-managing-button" class="button-primary hidden">
+              Done
+            </button>
+          </div>
         </header>
 
         <!-- To Do List -->
         <section class="habit-list-section">
           <h3>To Do</h3>
-          <ul id="todo-habit-list" class="habit-list">
-            <!-- Habit items appear here -->
-          </ul>
+          <ul id="todo-habit-list" class="habit-list"></ul>
           <p id="no-todo-msg" class="empty-list-msg hidden">
-            Nothing left for this day!
+            All done for this day!
           </p>
         </section>
 
         <!-- Completed List -->
         <section class="habit-list-section">
           <h3>Completed</h3>
-          <ul id="completed-habit-list" class="habit-list">
-            <!-- Completed habit items appear here -->
-          </ul>
+          <ul id="completed-habit-list" class="habit-list"></ul>
           <p id="no-completed-msg" class="empty-list-msg hidden">
-            No tasks completed yet.
+            No habits completed yet.
           </p>
         </section>
 
         <p id="no-habits-msg" class="empty-list-msg hidden">
-          Add your first habit using the sidebar!
+          Click "+ Add New Habit" to get started!
         </p>
       </main>
     </div>
+
+    <!-- ===== ADD HABIT MODAL ===== -->
+    <div id="add-habit-modal" class="modal-container">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <button class="modal-close-btn" title="Close">×</button>
+        <h2>Create a New Habit</h2>
+        <form id="add-habit-form">
+          <div class="form-group">
+            <label for="modal-habit-name">Habit Name:</label>
+            <input
+              type="text"
+              id="modal-habit-name"
+              required
+              placeholder="e.g., Meditate for 10 minutes"
+            />
+          </div>
+          <div class="form-group form-group-inline">
+            <div>
+              <label for="modal-start-date">Start Date:</label>
+              <input type="date" id="modal-start-date" required />
+            </div>
+            <div>
+              <label for="modal-duration">Duration (Days):</label>
+              <input
+                type="number"
+                id="modal-duration"
+                min="1"
+                value="30"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="button-secondary modal-cancel-btn">
+              Cancel
+            </button>
+            <button type="submit" class="button-primary">Save Habit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- ===== END MODAL ===== -->
 
     <script src="script.js"></script>
   </body>
